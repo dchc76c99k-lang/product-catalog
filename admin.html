@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>PRIVATE ACCESS</title>
+<style>
+  /* ============================================
+     管理后台 — 黑白极简 · 与主站风格统一
+     入口隐藏：不暴露任何"管理"字样
+     ============================================ */
+  :root {
+    --black: #141414;
+    --ink: #1a1a1a;
+    --white: #ffffff;
+    --cream: #f7f5f1;
+    --gray-line: #e5e0d8;
+    --gray-soft: #8a857d;
+    --gray-mid: #55524c;
+    --danger: #b42318;
+    --serif: "Playfair Display", "Didot", Georgia, "Times New Roman", serif;
+    --sans: "Jost", "Helvetica Neue", "Segoe UI", Arial, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--white);
+    color: var(--ink);
+    line-height: 1.7;
+    letter-spacing: 0.02em;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button { font-family: inherit; }
+  a { color: inherit; text-decoration: none; }
+  input { font-family: inherit; }
+
+  /* ============================================
+     登录页 — 极简 · 无任何"后台"字样
+     ============================================ */
+  #login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--white);
+  }
+
+  .login-card {
+    width: 340px;
+    max-width: 90%;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .login-mark {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 22px;
+    border: 1px solid var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--ink);
+    transform: rotate(45deg);
+  }
+  .login-mark span { transform: rotate(-45deg); }
+
+  .login-card h2 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    color: var(--ink);
+  }
+
+  .login-card .login-hint {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gray-soft);
+    margin-bottom: 34px;
+  }
+
+  .login-card input {
+    width: 100%;
+    padding: 13px 14px;
+    font-size: 18px;
+    text-align: center;
+    letter-spacing: 10px;
+    border: none;
+    border-bottom: 1px solid var(--gray-line);
+    background: transparent;
+    color: var(--ink);
+    transition: border-color 0.3s;
+    outline: none;
+  }
+  .login-card input:focus { border-bottom-color: var(--ink); }
+  .login-card input::placeholder { letter-spacing: 2px; font-size: 13px; color: #c9c4bb; }
+
+  .login-card .login-btn {
+    width: 100%;
+    margin-top: 26px;
+    padding: 13px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    background: var(--ink);
+    color: var(--white);
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .login-card .login-btn:hover { background: #000; }
+
+  .login-error {
+    color: var(--danger);
+    margin-top: 14px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    display: none;
+  }
+
+  /* ============================================
+     管理页
+     ============================================ */
+  #admin-page { display: none; }
+
+  .header {
+    background: var(--ink);
+    color: rgba(255,255,255,0.9);
+    padding: 0 28px;
+    height: 62px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-title {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .header-title .ht-main {
+    font-family: var(--serif);
+    font-size: 16px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+  .header-title .ht-sub {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .header-link {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    transition: color 0.3s;
+    cursor: pointer;
+  }
+  .header-link:hover { color: #fff; }
+
+  .btn {
+    padding: 9px 20px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid var(--gray-line);
+    background: var(--white);
+    color: var(--ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.3s;
+  }
+  .btn:hover { border-color: var(--ink); background: var(--ink); color: #fff; }
+  .btn-dark { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .btn-dark:hover { background: #000; }
+  .btn-danger { color: var(--danger); border-color: var(--danger); }
+  .btn-danger:hover { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .btn-sm { padding: 6px 14px; font-size: 10px; letter-spacing: 0.14em; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .container { max-width: 1080px; margin: 0 auto; padding: 36px 24px 60px; }
+
+  /* 高级设置已解锁提示 */
+  .advanced-banner {
+    display: none;
+    border: 1px solid var(--ink);
+    background: var(--cream);
+    padding: 12px 18px;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    margin-bottom: 22px;
+    color: var(--ink);
+  }
+  .admin-unlocked .advanced-banner { display: block; }
+
+  /* 统计 */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--gray-line);
+    border-left: 1px solid var(--gray-line);
+    margin-bottom: 34px;
+  }
+  .stat-card {
+    padding: 22px 26px;
+    border-right: 1px solid var(--gray-line);
+    border-bottom: 1px solid var(--gray-line);
+    background: var(--white);
+  }
+  .stat-card .label {
+    font-size: 10px;
+    color: var(--gray-soft);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .stat-card .value {
+    font-family: var(--serif);
+    font-size: 30px;
+    color: var(--ink);
+    margin-top: 4px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .stat-card .value.small { font-size: 18px; letter-spacing: 0.06em; line-height: 1.4; padding-top: 8px; }
+
+  /* 操作区 */
+  .actions-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 34px;
+    padding-bottom: 26px;
+    border-bottom: 1px solid var(--gray-line);
+  }
+
+  /* 仅高级设置解锁后显示 */
+  .advanced-only { display: none !important; }
+  .admin-unlocked .advanced-only { display: inline-flex !important; }
+
+  /* 品牌列表 */
+  .section-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gray-mid);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .brand-card {
+    border-bottom: 1px solid var(--gray-line);
+    margin-bottom: 0;
+  }
+
+  .brand-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 6px;
+    cursor: pointer;
+    transition: background 0.25s;
+  }
+  .brand-header:hover { background: var(--cream); }
+
+  .brand-header .left { display: flex; align-items: center; gap: 12px; }
+  .brand-header .toggle {
+    width: 22px;
+    font-size: 11px;
+    color: var(--gray-soft);
+    transition: transform 0.25s;
+    text-align: center;
+  }
+  .brand-header .toggle.open { transform: rotate(90deg); }
+  .brand-header .brand-name {
+    font-family: var(--serif);
+    font-size: 16px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .brand-header .brand-count {
+    font-size: 10px;
+    color: var(--gray-soft);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    border: 1px solid var(--gray-line);
+    padding: 2px 10px;
+  }
+  .brand-header .right { display: flex; align-items: center; gap: 8px; }
+
+  .brand-body { display: none; padding: 6px 6px 20px; }
+  .brand-body.open { display: block; }
+
+  .images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 10px;
+  }
+  .image-item {
+    position: relative;
+    border: 1px solid var(--gray-line);
+    background: var(--cream);
+    overflow: hidden;
+  }
+  .image-item img { width: 100%; height: 110px; object-fit: cover; display: block; }
+  .image-item .img-name {
+    font-size: 10px;
+    padding: 4px 8px;
+    color: var(--gray-soft);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: var(--white);
+  }
+  .image-item .delete-btn {
+    position: absolute;
+    top: 4px; right: 4px;
+    width: 24px; height: 24px;
+    background: rgba(20,20,20,0.82);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .image-item:hover .delete-btn { opacity: 1; }
+  .image-item .delete-btn:hover { background: var(--danger); }
+
+  /* 上传占位卡片 */
+  .upload-card {
+    border: 1px dashed var(--gray-line);
+    background: var(--white);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 110px;
+    transition: all 0.3s;
+  }
+  .upload-card:hover {
+    border-color: var(--ink);
+    background: var(--cream);
+  }
+  .upload-card .plus {
+    font-size: 28px;
+    color: var(--gray-soft);
+    transition: color 0.3s;
+    line-height: 1;
+  }
+  .upload-card:hover .plus { color: var(--ink); }
+  .upload-card .label {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gray-soft);
+    transition: color 0.3s;
+  }
+  .upload-card:hover .label { color: var(--ink); }
+
+  /* 模态框 */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,10,0.6);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-card {
+    background: var(--white);
+    padding: 34px 32px 28px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  }
+  .modal-card h3 {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    margin-bottom: 8px;
+  }
+  .modal-card p {
+    font-size: 13px;
+    color: var(--gray-soft);
+    line-height: 1.7;
+    margin-bottom: 22px;
+  }
+  .modal-card .input-group { margin-bottom: 18px; }
+  .modal-card .input-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gray-mid);
+    margin-bottom: 8px;
+  }
+  .modal-card .input-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--gray-line);
+    font-size: 15px;
+    color: var(--ink);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .modal-card .input-group input:focus { border-color: var(--ink); }
+  .modal-card .input-group input.lock-input { text-align: center; letter-spacing: 8px; font-size: 18px; }
+  .modal-card .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+  .steps-list {
+    background: var(--cream);
+    padding: 16px 20px 16px 36px;
+    margin: 4px 0 20px;
+    font-size: 13px;
+    color: var(--gray-mid);
+    line-height: 1.9;
+  }
+  .steps-list code {
+    background: var(--white);
+    padding: 1px 6px;
+    font-family: Consolas, monospace;
+    font-size: 12px;
+    border: 1px solid var(--gray-line);
+  }
+
+  .toast-container {
+    position: fixed;
+    bottom: 26px; right: 26px;
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .toast {
+    padding: 12px 22px;
+    background: var(--ink);
+    color: #fff;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    animation: slideIn 0.3s ease;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+  }
+  .toast.success { background: #1f5a38; }
+  .toast.error { background: var(--danger); }
+  @keyframes slideIn {
+    from { transform: translateX(30px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--gray-soft); }
+  .empty-state .icon { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
+
+  @media (max-width: 640px) {
+    .header { padding: 0 16px; }
+    .header-title .ht-sub { display: none; }
+    .stats-row { grid-template-columns: 1fr; }
+    .container { padding: 24px 16px 50px; }
+    .images-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+    .brand-header { flex-wrap: wrap; gap: 8px; }
+    .brand-header .right { width: 100%; justify-content: flex-end; }
+    .header-actions .btn-sm { padding: 6px 12px; font-size: 9px; }
+    .header-actions .header-link { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 登录页（极简，无后台字样） -->
+<div id="login-page">
+  <div class="login-card">
+    <div class="login-mark"><span>◆</span></div>
+    <h2>Private</h2>
+    <p class="login-hint">Restricted Access</p>
+    <input type="password" id="password-input" placeholder="密码" maxlength="6" autocomplete="off"
+           onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">进入</button>
+    <div class="login-error" id="login-error">密码错误，请重试</div>
+  </div>
+</div>
+
+<!-- 管理页 -->
+<div id="admin-page">
+  <div class="header">
+    <div class="header-title">
+      <span class="ht-main" id="headerSiteName">品牌精选</span>
+      <span class="ht-sub">Management</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-sm" style="border-color:rgba(255,255,255,0.35);background:transparent;color:#fff;" onclick="showModal('advanced-password')">⚙ 高级设置</button>
+      <a href="index.html" class="header-link">返回网站 →</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- 高级设置解锁提示 -->
+    <div class="advanced-banner">✓ 高级设置已解锁 —— 当前可添加 / 删除品牌</div>
+
+    <!-- 统计 -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="label">品牌数量</div>
+        <div class="value" id="stat-brands">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">产品总数</div>
+        <div class="value" id="stat-products">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">WhatsApp</div>
+        <div class="value small" id="stat-whatsapp">-</div>
+      </div>
+    </div>
+
+    <!-- 操作区 -->
+    <div class="actions-bar">
+      <button class="btn btn-dark" onclick="regenerateConfig()">↻ 重新生成配置</button>
+      <button class="btn" onclick="showModal('add-image')">+ 添加图片指引</button>
+      <button class="btn btn-dark advanced-only" onclick="showModal('add-brand')">+ 添加品牌</button>
+    </div>
+
+    <!-- 品牌列表 -->
+    <div class="section-title">
+      <span>品牌管理</span>
+      <span id="brands-total" style="font-weight:400;color:var(--gray-soft);font-size:10px;"></span>
+    </div>
+    <div id="brands-container">
+      <div class="empty-state">
+        <div class="icon">◌</div>
+        <div>加载中...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 模态框：高级设置密码 -->
+<div class="modal-overlay" id="modal-advanced-password">
+  <div class="modal-card">
+    <h3>高级设置</h3>
+    <p>此区域可<b>添加品牌</b>与<b>删除品牌</b>。请输入高级密码以解锁。</p>
+    <div class="input-group">
+      <label>高级密码</label>
+      <input type="password" id="advanced-password-input" class="lock-input" maxlength="6" autocomplete="off"
+             onkeydown="if(event.key==='Enter')unlockAdvanced()">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="hideModal('advanced-password')">取消</button>
+      <button class="btn btn-dark" onclick="unlockAdvanced()">解锁</button>
+    </div>
+  </div>
+</div>
+
+<!-- 模态框：添加品牌 -->
+<div class="modal-overlay" id="modal-add-brand">
+  <div class="modal-card">
+    <h3>添加新品牌</h3>
+    <p>创建品牌文件夹后，把产品图片放入该文件夹，再点击「重新生成配置」即可展示。</p>
+    <div class="input-group">
+      <label>品牌名称</label>
+      <input type="text" id="new-brand-name" placeholder="例如：Burberry" onkeydown="if(event.key==='Enter')confirmAddBrand()">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="hideModal('add-brand')">取消</button>
+      <button class="btn btn-dark" onclick="confirmAddBrand()">创建</button>
+    </div>
+  </div>
+</div>
+
+<!-- 模态框：添加图片 -->
+<div class="modal-overlay" id="modal-add-image">
+  <div class="modal-card">
+    <h3>添加图片</h3>
+    <p>请按照以下步骤操作：</p>
+    <ol class="steps-list">
+      <li>打开文件夹 <code>product-catalog/images/</code></li>
+      <li>找到你要添加图片的品牌文件夹</li>
+      <li>把新图片直接拖入该文件夹</li>
+      <li>回到这里点击「重新生成配置」</li>
+    </ol>
+    <div class="modal-actions">
+      <button class="btn" onclick="hideModal('add-image')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 模态框：删除品牌 -->
+<div class="modal-overlay" id="modal-delete-brand">
+  <div class="modal-card">
+    <h3>删除品牌</h3>
+    <p>确定要删除品牌 <b id="delete-brand-name"></b> 吗？<br>此操作会删除该品牌文件夹及其所有图片，无法恢复。</p>
+    <div class="modal-actions">
+      <button class="btn" onclick="hideModal('delete-brand')">取消</button>
+      <button class="btn btn-danger" onclick="confirmDeleteBrand()">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- 模态框：删除图片 -->
+<div class="modal-overlay" id="modal-delete-image">
+  <div class="modal-card">
+    <h3>删除图片</h3>
+    <p>确定要删除图片 <b id="delete-image-name"></b> 吗？<br>此操作无法恢复。</p>
+    <div class="modal-actions">
+      <button class="btn" onclick="hideModal('delete-image')">取消</button>
+      <button class="btn btn-danger" onclick="confirmDeleteImage()">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast 容器 -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+const ADMIN_PASSWORD = '123456';
+const ADVANCED_PASSWORD = '666666';
+let config = null;
+let pendingDeleteBrand = null;
+let pendingDeleteImage = null;
+let advancedUnlocked = false;
+
+// 检查是否已登录
+if (sessionStorage.getItem('admin_logged_in') === 'true') {
+  showAdmin();
+}
+
+function doLogin() {
+  const input = document.getElementById('password-input');
+  if (input.value === ADMIN_PASSWORD) {
+    sessionStorage.setItem('admin_logged_in', 'true');
+    showAdmin();
+  } else {
+    const err = document.getElementById('login-error');
+    err.style.display = 'block';
+    input.value = '';
+    input.focus();
+  }
+}
+
+function showAdmin() {
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('admin-page').style.display = 'block';
+  // 恢复高级设置解锁状态
+  advancedUnlocked = sessionStorage.getItem('admin_advanced') === 'true';
+  applyAdvancedState();
+  loadConfig();
+}
+
+// ---- 高级设置（添加/删除品牌） ----
+function unlockAdvanced() {
+  const input = document.getElementById('advanced-password-input');
+  if (input.value === ADVANCED_PASSWORD) {
+    advancedUnlocked = true;
+    sessionStorage.setItem('admin_advanced', 'true');
+    hideModal('advanced-password');
+    input.value = '';
+    applyAdvancedState();
+    showToast('高级设置已解锁', 'success');
+  } else {
+    input.value = '';
+    input.focus();
+    showToast('密码错误', 'error');
+  }
+}
+
+function applyAdvancedState() {
+  const adminPage = document.getElementById('admin-page');
+  if (advancedUnlocked) {
+    adminPage.classList.add('admin-unlocked');
+  } else {
+    adminPage.classList.remove('admin-unlocked');
+  }
+}
+
+function loadConfig() {
+  const script = document.createElement('script');
+  script.src = 'config.js?t=' + Date.now();
+  script.onload = function () {
+    if (typeof SITE_CONFIG !== 'undefined') {
+      config = SITE_CONFIG;
+      if (config.siteName) {
+        document.getElementById('headerSiteName').textContent = config.siteName;
+      }
+      renderDashboard();
+    }
+  };
+  script.onerror = function () {
+    showToast('加载配置失败', 'error');
+  };
+  document.head.appendChild(script);
+}
+
+function renderDashboard() {
+  const totalProducts = config.brands.reduce((sum, b) => sum + b.products.length, 0);
+  document.getElementById('stat-brands').textContent = config.brands.length;
+  document.getElementById('stat-products').textContent = totalProducts;
+  document.getElementById('stat-whatsapp').textContent = config.whatsapp.number || '-';
+  document.getElementById('brands-total').textContent = config.brands.length + ' BRANDS · ' + totalProducts + ' PRODUCTS';
+
+  const container = document.getElementById('brands-container');
+  if (config.brands.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">◌</div><div>暂无品牌</div></div>';
+    return;
+  }
+
+  container.innerHTML = config.brands.map((brand) => {
+    const imagesHtml = brand.products.map((product) => {
+      const fileName = product.image.split('/').pop();
+      return `
+        <div class="image-item" title="${fileName}">
+          <img src="${product.image}" alt="${product.name}" loading="lazy" onerror="this.style.display='none'">
+          <div class="img-name">${fileName}</div>
+          <button class="delete-btn" onclick="askDeleteImage('${brand.id}', '${fileName.replace(/'/g, "\\'")}')" title="删除图片">×</button>
+        </div>
+      `;
+    }).join('') + `
+      <div class="image-item upload-card" onclick="triggerUpload('${brand.id}')" title="上传图片到 ${brand.name}">
+        <div class="plus">+</div>
+        <div class="label">上传</div>
+      </div>
+    `;
+
+    return `
+      <div class="brand-card">
+        <div class="brand-header" onclick="toggleBrand('${brand.id}')">
+          <div class="left">
+            <div class="toggle" id="toggle-${brand.id}">▶</div>
+            <div class="brand-name">${brand.name}</div>
+            <div class="brand-count">${brand.products.length} 个产品</div>
+          </div>
+          <div class="right">
+            <button class="btn btn-danger btn-sm advanced-only"
+                    onclick="event.stopPropagation(); askDeleteBrand('${brand.id}')">删除品牌</button>
+          </div>
+        </div>
+        <div class="brand-body" id="body-${brand.id}">
+          <div class="images-grid">${imagesHtml || '<div style="padding:10px;color:#8a857d;font-size:12px;">暂无图片，请把图片放入文件夹后重新生成配置</div>'}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleBrand(brandId) {
+  const body = document.getElementById('body-' + brandId);
+  const toggle = document.getElementById('toggle-' + brandId);
+  body.classList.toggle('open');
+  toggle.classList.toggle('open');
+}
+
+function askDeleteBrand(brandId) {
+  const brand = config.brands.find(b => b.id === brandId);
+  if (!brand) return;
+  pendingDeleteBrand = brandId;
+  document.getElementById('delete-brand-name').textContent = brand.name;
+  showModal('delete-brand');
+}
+
+function confirmDeleteBrand() {
+  if (!pendingDeleteBrand) return;
+  hideModal('delete-brand');
+
+  fetch('/api/delete-brand', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ brandId: pendingDeleteBrand })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      showToast('品牌已删除', 'success');
+      config.brands = config.brands.filter(b => b.id !== pendingDeleteBrand);
+      renderDashboard();
+    } else {
+      showToast(data.error || '删除失败', 'error');
+    }
+  })
+  .catch(err => showToast('删除失败: ' + err.message, 'error'));
+  pendingDeleteBrand = null;
+}
+
+function askDeleteImage(brandId, imageName) {
+  pendingDeleteImage = { brandId, imageName };
+  document.getElementById('delete-image-name').textContent = imageName;
+  showModal('delete-image');
+}
+
+function confirmDeleteImage() {
+  if (!pendingDeleteImage) return;
+  hideModal('delete-image');
+
+  fetch('/api/delete-image', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(pendingDeleteImage)
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      showToast('图片已删除', 'success');
+      const brand = config.brands.find(b => b.id === pendingDeleteImage.brandId);
+      if (brand) {
+        brand.products = brand.products.filter(p => !p.image.endsWith(pendingDeleteImage.imageName));
+        renderDashboard();
+      }
+    } else {
+      showToast(data.error || '删除失败', 'error');
+    }
+  })
+  .catch(err => showToast('删除失败: ' + err.message, 'error'));
+  pendingDeleteImage = null;
+}
+
+function confirmAddBrand() {
+  const name = document.getElementById('new-brand-name').value.trim();
+  if (!name) {
+    showToast('请输入品牌名称', 'error');
+    return;
+  }
+  hideModal('add-brand');
+
+  fetch('/api/create-brand', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ brandName: name })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      showToast('品牌已创建，请添加图片后重新生成配置', 'success');
+      const brandId = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      config.brands.push({ id: brandId, name: name, description: '', products: [] });
+      renderDashboard();
+      document.getElementById('new-brand-name').value = '';
+    } else {
+      showToast(data.error || '创建失败', 'error');
+    }
+  })
+  .catch(err => showToast('创建失败: ' + err.message, 'error'));
+}
+
+function regenerateConfig() {
+  const btn = document.querySelector('.actions-bar .btn-dark');
+  btn.disabled = true;
+  btn.textContent = '… 生成中';
+
+  fetch('/api/regenerate-config', { method: 'POST' })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      showToast('配置已重新生成', 'success');
+      setTimeout(() => loadConfig(), 500);
+    } else {
+      showToast(data.error || '生成失败', 'error');
+    }
+  })
+  .catch(err => showToast('生成失败: ' + err.message, 'error'))
+  .finally(() => {
+    btn.disabled = false;
+    btn.textContent = '↻ 重新生成配置';
+  });
+}
+
+// ---- 上传图片 ----
+let pendingUploadBrand = null;
+
+function triggerUpload(brandId) {
+  pendingUploadBrand = brandId;
+  document.getElementById('file-input').click();
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.id = 'file-input';
+  input.style.display = 'none';
+  input.multiple = true;
+  input.accept = 'image/*';
+  input.addEventListener('change', handleFileUpload);
+  document.body.appendChild(input);
+});
+
+function handleFileUpload(e) {
+  const files = e.target.files;
+  if (!files || files.length === 0 || !pendingUploadBrand) return;
+
+  const brandId = pendingUploadBrand;
+  const brandName = config.brands.find(b => b.id === brandId)?.name || brandId;
+  const total = files.length;
+  let done = 0;
+  let failed = 0;
+
+  showToast(`正在上传 ${total} 张图片到 ${brandName}…`, 'info');
+
+  for (const file of files) {
+    const formData = new FormData();
+    formData.append('brandId', brandId);
+    formData.append('image', file);
+
+    fetch('/api/upload-image', {
+      method: 'POST',
+      body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+      done++;
+      if (!data.success) { failed++; console.error('上传失败:', data.error); }
+      if (done + failed >= total) finishUpload(brandId, total, failed);
+    })
+    .catch(err => {
+      done++; failed++;
+      console.error('上传错误:', err);
+      if (done + failed >= total) finishUpload(brandId, total, failed);
+    });
+  }
+
+  e.target.value = '';
+  pendingUploadBrand = null;
+}
+
+function finishUpload(brandId, total, failed) {
+  if (failed === 0) {
+    showToast(`${total} 张图片上传成功，正在刷新…`, 'success');
+  } else if (failed === total) {
+    showToast('全部上传失败，请重试', 'error');
+    return;
+  } else {
+    showToast(`${total - failed}/${total} 张上传成功，正在刷新…`, 'info');
+  }
+  // 自动重新生成配置
+  fetch('/api/regenerate-config', { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        showToast('配置已更新', 'success');
+        setTimeout(() => loadConfig(), 300);
+      } else {
+        showToast(data.error || '配置更新失败', 'error');
+      }
+    })
+    .catch(err => showToast('配置更新失败: ' + err.message, 'error'));
+}
+
+// 模态框
+function showModal(id) {
+  document.getElementById('modal-' + id).classList.add('open');
+  if (id === 'advanced-password') {
+    setTimeout(() => document.getElementById('advanced-password-input').focus(), 100);
+  }
+  if (id === 'add-brand') {
+    setTimeout(() => document.getElementById('new-brand-name').focus(), 100);
+  }
+}
+function hideModal(id) {
+  document.getElementById('modal-' + id).classList.remove('open');
+}
+
+// Toast
+function showToast(msg, type) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(30px)';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// 点击模态框外部关闭
+for (const el of document.querySelectorAll('.modal-overlay')) {
+  el.addEventListener('click', function (e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+}
+</script>
+</body>
+</html>
