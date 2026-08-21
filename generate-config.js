@@ -184,6 +184,29 @@ configContent.push("};");
 
 fs.writeFileSync(CONFIG_PATH, configContent.join("\n") + "\n", "utf-8");
 
+// ---- 同步更新 index.html 中的内联配置 ----
+var INDEX_PATH = path.join(__dirname, "index.html");
+try {
+  var indexHtml = fs.readFileSync(INDEX_PATH, "utf-8");
+  var inlineConfig = configContent.join("\n");
+  var startMarker = "<!-- CONFIG-INLINE-START -->";
+  var endMarker = "<!-- CONFIG-INLINE-END -->";
+
+  if (indexHtml.indexOf(startMarker) !== -1 && indexHtml.indexOf(endMarker) !== -1) {
+    var newInline = startMarker + "\n  <script>\n" + inlineConfig + "\n  </script>\n  " + endMarker;
+    indexHtml = indexHtml.replace(
+      new RegExp(startMarker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "[\\s\\S]*?" + endMarker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"),
+      newInline
+    );
+    fs.writeFileSync(INDEX_PATH, indexHtml, "utf-8");
+    console.log("\u2705 已同步更新 index.html 内联配置");
+  } else {
+    console.log("\u26A0\uFE0F  index.html 中未找到 CONFIG-INLINE 标记，跳过同步");
+  }
+} catch (e) {
+  console.log("\u26A0\uFE0F  同步更新 index.html 失败:", e.message);
+}
+
 console.log("");
 console.log("\u2705 配置文件已生成: config.js");
 console.log("   品牌: " + brands.length + " 个");
